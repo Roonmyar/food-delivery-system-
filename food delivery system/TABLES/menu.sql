@@ -1,0 +1,31 @@
+
+  CREATE TABLE "MENU" 
+   (	"ID" NUMBER(10,0), 
+	"RESTAURANT_ID" NUMBER(10,0), 
+	"ITEM_NAME" VARCHAR2(100), 
+	"DESCRIPTION" VARCHAR2(500), 
+	"PRICE" NUMBER(10,2), 
+	 PRIMARY KEY ("ID")
+  USING INDEX  ENABLE
+   ) ;
+
+  ALTER TABLE "MENU" ADD FOREIGN KEY ("RESTAURANT_ID")
+	  REFERENCES "RESTAURANTS" ("RESTAURANT_ID") ENABLE;
+
+  CREATE OR REPLACE EDITIONABLE TRIGGER "CHECK_MENU_DESCRIPTION_LENGTH" 
+BEFORE INSERT OR UPDATE ON menu
+FOR EACH ROW
+DECLARE
+  description_length INTEGER;
+  invalid_length EXCEPTION;
+BEGIN
+  description_length := LENGTH(:NEW.description);
+  IF description_length < 5 THEN
+    RAISE invalid_length;
+  END IF;
+EXCEPTION
+  WHEN invalid_length THEN
+    raise_application_error(-20001, 'Description must be at least 5 characters long');
+END;
+/
+ALTER TRIGGER "CHECK_MENU_DESCRIPTION_LENGTH" ENABLE;
